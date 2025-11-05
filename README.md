@@ -1,8 +1,5 @@
 # create-t3-turbo
 
-> [!NOTE]
->
-> create-t3-turbo now includes the option to use Tanstack Start for the web app!
 
 ## Installation
 
@@ -10,15 +7,7 @@
 >
 > Make sure to follow the system requirements specified in [`package.json#engines`](./package.json#L4) before proceeding.
 
-There are two ways of initializing an app using the `create-t3-turbo` starter. You can either use this repository as a template:
-
-![use-as-template](https://github.com/t3-oss/create-t3-turbo/assets/51714798/bb6c2e5d-d8b6-416e-aeb3-b3e50e2ca994)
-
-or use Turbo's CLI to init your project (use PNPM as package manager):
-
-```bash
-npx create-turbo@latest -e https://github.com/t3-oss/create-t3-turbo
-```
+You will need NodeJS, PNPM installed
 
 ## About
 
