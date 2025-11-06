@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+
 import { auth } from "~/auth/server";
 import { NoteDetailClient } from "./_components/note-detail-client";
 

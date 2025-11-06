@@ -46,10 +46,7 @@ export function initAuth<
         },
       },
     },
-    plugins: [
-      expo(),
-      ...(options.extraPlugins ?? []),
-    ],
+    plugins: [expo(), ...(options.extraPlugins ?? [])],
     trustedOrigins: ["expo://"],
     onAPIError: {
       onError(error, ctx) {
@@ -62,5 +59,15 @@ export function initAuth<
 }
 
 export type Auth = ReturnType<typeof initAuth>;
-export type Session = Auth["$Infer"]["Session"];
-export type User = Auth["$Infer"]["Session"]["user"] & { role: UserRole };
+
+// Better Auth inferred types
+type InferredSession = Auth["$Infer"]["Session"];
+type InferredUser = InferredSession["user"];
+
+// Extended user type with role field
+export type User = InferredUser & { role: UserRole };
+
+// Extended session type with properly typed user
+export type Session = Omit<InferredSession, "user"> & {
+  user: User;
+};

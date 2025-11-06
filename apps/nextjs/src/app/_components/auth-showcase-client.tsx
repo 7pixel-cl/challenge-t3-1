@@ -82,7 +82,10 @@ export function AuthShowcaseClient({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-4">
+    <form
+      onSubmit={handleSubmit}
+      className="flex w-full max-w-sm flex-col gap-4"
+    >
       {isSignUp && (
         <div className="flex flex-col gap-2">
           <Label htmlFor="name">Name</Label>
@@ -118,7 +121,7 @@ export function AuthShowcaseClient({
       </div>
 
       {error && (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="text-destructive text-sm" role="alert">
           {error}
         </p>
       )}
@@ -143,10 +146,10 @@ export function AuthShowcaseClient({
 
       {!isSignUp && (
         <div className="space-y-2 rounded-md border p-3">
-          <p className="text-center text-xs font-medium text-muted-foreground">
+          <p className="text-muted-foreground text-center text-xs font-medium">
             Test Users (password: Test123.)
           </p>
-          <div className="space-y-1 text-xs text-muted-foreground">
+          <div className="text-muted-foreground space-y-1 text-xs">
             <p>
               <span className="font-medium">Admin:</span> admin@example.com
             </p>

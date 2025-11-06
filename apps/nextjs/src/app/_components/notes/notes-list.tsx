@@ -34,9 +34,13 @@ export function NotesList() {
 
   // Get current user session to check if admin
   const { data: session } = authClient.useSession();
-  const isAdmin = session?.user?.role === "admin";
+  const isAdmin = session ? session.user.role === "admin" : false;
 
-  const { data: notes, isLoading, error } = useQuery(trpc.notes.list.queryOptions());
+  const {
+    data: notes,
+    isLoading,
+    error,
+  } = useQuery(trpc.notes.list.queryOptions());
 
   const deleteNote = useMutation(
     trpc.notes.delete.mutationOptions({
@@ -80,7 +84,7 @@ export function NotesList() {
     return (
       <Card>
         <CardContent className="pt-6">
-          <p className="text-center text-destructive" role="alert">
+          <p className="text-destructive text-center" role="alert">
             Error loading notes: {error.message}
           </p>
         </CardContent>
@@ -92,7 +96,7 @@ export function NotesList() {
     return (
       <Card>
         <CardContent className="pt-6">
-          <p className="text-center text-muted-foreground">
+          <p className="text-muted-foreground text-center">
             No notes yet. Create your first note above!
           </p>
         </CardContent>
@@ -112,7 +116,7 @@ export function NotesList() {
                   <CardDescription>
                     {new Date(note.createdAt).toLocaleDateString()} at{" "}
                     {new Date(note.createdAt).toLocaleTimeString()}
-                    {isAdmin && note.user && (
+                    {isAdmin && (
                       <>
                         {" - "}
                         <span className="font-medium">
@@ -123,7 +127,9 @@ export function NotesList() {
                   </CardDescription>
                 </div>
                 {note.status && (
-                  <Badge variant={note.status === "active" ? "default" : "secondary"}>
+                  <Badge
+                    variant={note.status === "active" ? "default" : "secondary"}
+                  >
                     {note.status}
                   </Badge>
                 )}
@@ -131,7 +137,7 @@ export function NotesList() {
             </CardHeader>
             {note.content && (
               <CardContent>
-                <p className="line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground">
+                <p className="text-muted-foreground line-clamp-3 text-sm whitespace-pre-wrap">
                   {note.content}
                 </p>
               </CardContent>
@@ -159,12 +165,16 @@ export function NotesList() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+      <Dialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Note</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this note? This action cannot be undone.
+              Are you sure you want to delete this note? This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -194,14 +204,14 @@ function NoteCardSkeleton() {
     <Card>
       <CardHeader>
         <div className="space-y-2">
-          <div className="h-6 w-3/4 animate-pulse rounded bg-muted" />
-          <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
+          <div className="bg-muted h-6 w-3/4 animate-pulse rounded" />
+          <div className="bg-muted h-4 w-1/2 animate-pulse rounded" />
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <div className="h-4 w-full animate-pulse rounded bg-muted" />
-          <div className="h-4 w-5/6 animate-pulse rounded bg-muted" />
+          <div className="bg-muted h-4 w-full animate-pulse rounded" />
+          <div className="bg-muted h-4 w-5/6 animate-pulse rounded" />
         </div>
       </CardContent>
     </Card>

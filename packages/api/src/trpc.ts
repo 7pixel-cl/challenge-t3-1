@@ -146,13 +146,15 @@ export const memberProcedure: typeof protectedProcedure = protectedProcedure;
  * Ensures the user is authenticated AND has the admin role.
  * Throws FORBIDDEN if the user is not an admin.
  */
-export const adminProcedure: typeof protectedProcedure = protectedProcedure.use(({ ctx, next }) => {
-  const userRole = ctx.session.user.role;
-  if (userRole !== UserRole.ADMIN) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "Admin access required",
-    });
-  }
-  return next({ ctx });
-});
+export const adminProcedure: typeof protectedProcedure = protectedProcedure.use(
+  ({ ctx, next }) => {
+    const userRole = ctx.session.user.role;
+    if (userRole !== UserRole.ADMIN) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Admin access required",
+      });
+    }
+    return next({ ctx });
+  },
+);

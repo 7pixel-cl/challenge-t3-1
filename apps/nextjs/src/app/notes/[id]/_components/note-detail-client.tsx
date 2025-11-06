@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { Badge } from "@acme/ui/badge";
 import { Button } from "@acme/ui/button";
 import {
@@ -46,12 +47,14 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
 
   // Get current user session to check if admin
   const { data: session } = authClient.useSession();
-  const isAdmin = session?.user?.role === "admin";
+  const isAdmin = session ? session.user.role === "admin" : false;
 
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [status, setStatus] = useState<"draft" | "active" | "archived">("active");
+  const [status, setStatus] = useState<"draft" | "active" | "archived">(
+    "active",
+  );
   const [error, setError] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -73,7 +76,7 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
   if (note && !isEditing) {
     if (title === "" && content === "") {
       setTitle(note.title);
-      setContent(note.content || "");
+      setContent(note.content ?? "");
       setStatus(note.status as "draft" | "active" | "archived");
     }
   }
@@ -84,7 +87,9 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
       onSuccess: async () => {
         setIsEditing(false);
         setError(null);
-        await queryClient.invalidateQueries(trpc.notes.byId.queryFilter({ id: noteId }));
+        await queryClient.invalidateQueries(
+          trpc.notes.byId.queryFilter({ id: noteId }),
+        );
         await queryClient.invalidateQueries(trpc.notes.list.queryFilter());
         announceToScreenReader("Note updated successfully");
       },
@@ -139,7 +144,7 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
   const handleCancelEdit = () => {
     if (note) {
       setTitle(note.title);
-      setContent(note.content || "");
+      setContent(note.content ?? "");
       setStatus(note.status as "draft" | "active" | "archived");
     }
     setIsEditing(false);
@@ -156,14 +161,14 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
         <Card>
           <CardHeader>
             <div className="space-y-2">
-              <div className="h-8 w-3/4 animate-pulse rounded bg-muted" />
-              <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
+              <div className="bg-muted h-8 w-3/4 animate-pulse rounded" />
+              <div className="bg-muted h-4 w-1/2 animate-pulse rounded" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div className="h-4 w-full animate-pulse rounded bg-muted" />
-              <div className="h-4 w-5/6 animate-pulse rounded bg-muted" />
+              <div className="bg-muted h-4 w-full animate-pulse rounded" />
+              <div className="bg-muted h-4 w-5/6 animate-pulse rounded" />
             </div>
           </CardContent>
         </Card>
@@ -177,8 +182,9 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
         <Card>
           <CardContent className="pt-6">
             <div className="space-y-4">
-              <p className="text-center text-destructive" role="alert">
-                {fetchError?.message || "Note not found or you don't have permission to view it"}
+              <p className="text-destructive text-center" role="alert">
+                {fetchError?.message ??
+                  "Note not found or you don't have permission to view it"}
               </p>
               <div className="flex justify-center">
                 <Button onClick={() => router.push("/")} variant="outline">
@@ -233,7 +239,11 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
                         aria-describedby={error ? "title-error" : undefined}
                       />
                       {error && !title.trim() && (
-                        <p id="title-error" className="text-sm text-destructive" role="alert">
+                        <p
+                          id="title-error"
+                          className="text-destructive text-sm"
+                          role="alert"
+                        >
                           {error}
                         </p>
                       )}
@@ -243,16 +253,19 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
                   <>
                     <CardTitle className="text-2xl">{note.title}</CardTitle>
                     <CardDescription>
-                      Created: {new Date(note.createdAt).toLocaleDateString()} at{" "}
-                      {new Date(note.createdAt).toLocaleTimeString()}
+                      Created: {new Date(note.createdAt).toLocaleDateString()}{" "}
+                      at {new Date(note.createdAt).toLocaleTimeString()}
                       {note.updatedAt && note.updatedAt !== note.createdAt && (
                         <>
                           {" • "}
-                          Updated: {new Date(note.updatedAt).toLocaleDateString()} at{" "}
+                          Updated:{" "}
+                          {new Date(
+                            note.updatedAt,
+                          ).toLocaleDateString()} at{" "}
                           {new Date(note.updatedAt).toLocaleTimeString()}
                         </>
                       )}
-                      {isAdmin && note.user && (
+                      {isAdmin && (
                         <>
                           {" • "}
                           <span className="font-medium">
@@ -265,7 +278,9 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
                 )}
               </div>
               {!isEditing && note.status && (
-                <Badge variant={note.status === "active" ? "default" : "secondary"}>
+                <Badge
+                  variant={note.status === "active" ? "default" : "secondary"}
+                >
                   {note.status}
                 </Badge>
               )}
@@ -291,7 +306,9 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
                   <Label htmlFor="edit-note-status">Status</Label>
                   <Select
                     value={status}
-                    onValueChange={(value) => setStatus(value as "draft" | "active" | "archived")}
+                    onValueChange={(value) =>
+                      setStatus(value as "draft" | "active" | "archived")
+                    }
                   >
                     <SelectTrigger id="edit-note-status">
                       <SelectValue placeholder="Select status" />
@@ -305,7 +322,7 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
                 </div>
 
                 {error && title.trim() && (
-                  <p className="text-sm text-destructive" role="alert">
+                  <p className="text-destructive text-sm" role="alert">
                     {error}
                   </p>
                 )}
@@ -325,7 +342,7 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
                 </div>
               </form>
             ) : (
-              <div className="prose prose-sm max-w-none dark:prose-invert">
+              <div className="prose prose-sm dark:prose-invert max-w-none">
                 {note.content ? (
                   <p className="whitespace-pre-wrap">{note.content}</p>
                 ) : (
@@ -358,7 +375,8 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
           <DialogHeader>
             <DialogTitle>Delete Note</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete &quot;{note.title}&quot;? This action cannot be undone.
+              Are you sure you want to delete &quot;{note.title}&quot;? This
+              action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

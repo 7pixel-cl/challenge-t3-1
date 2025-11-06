@@ -30,7 +30,9 @@ export function CreateNoteForm() {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [status, setStatus] = useState<"draft" | "active" | "archived">("active");
+  const [status, setStatus] = useState<"draft" | "active" | "archived">(
+    "active",
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const createNote = useMutation(
@@ -105,9 +107,7 @@ export function CreateNoteForm() {
       <Card>
         <CardHeader>
           <CardTitle>Create New Note</CardTitle>
-          <CardDescription>
-            Add a new note to your collection
-          </CardDescription>
+          <CardDescription>Add a new note to your collection</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -128,7 +128,11 @@ export function CreateNoteForm() {
                 aria-describedby={errors.title ? "title-error" : undefined}
               />
               {errors.title && (
-                <p id="title-error" className="text-sm text-destructive" role="alert">
+                <p
+                  id="title-error"
+                  className="text-destructive text-sm"
+                  role="alert"
+                >
                   {errors.title}
                 </p>
               )}
@@ -147,7 +151,11 @@ export function CreateNoteForm() {
                 aria-describedby={errors.content ? "content-error" : undefined}
               />
               {errors.content && (
-                <p id="content-error" className="text-sm text-destructive" role="alert">
+                <p
+                  id="content-error"
+                  className="text-destructive text-sm"
+                  role="alert"
+                >
                   {errors.content}
                 </p>
               )}
@@ -157,7 +165,9 @@ export function CreateNoteForm() {
               <Label htmlFor="note-status">Status</Label>
               <Select
                 value={status}
-                onValueChange={(value) => setStatus(value as "draft" | "active" | "archived")}
+                onValueChange={(value) =>
+                  setStatus(value as "draft" | "active" | "archived")
+                }
               >
                 <SelectTrigger id="note-status">
                   <SelectValue placeholder="Select status" />
@@ -169,14 +179,14 @@ export function CreateNoteForm() {
                 </SelectContent>
               </Select>
               {errors.status && (
-                <p className="text-sm text-destructive" role="alert">
+                <p className="text-destructive text-sm" role="alert">
                   {errors.status}
                 </p>
               )}
             </div>
 
             {errors.general && (
-              <p className="text-sm text-destructive" role="alert">
+              <p className="text-destructive text-sm" role="alert">
                 {errors.general}
               </p>
             )}

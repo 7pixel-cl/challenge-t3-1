@@ -112,14 +112,16 @@ async function main() {
     }
 
     // Fetch actual user IDs from database
-    const users = await client`
+    const users = (await client`
       SELECT id, email FROM "user"
       WHERE email IN ('admin@example.com', 'member1@example.com', 'member2@example.com')
       ORDER BY email
-    `;
+    `) as { id: string; email: string }[];
 
     if (users.length !== 3) {
-      console.error("⚠️  Warning: Not all test users found in database. Skipping note seeding.");
+      console.error(
+        "⚠️  Warning: Not all test users found in database. Skipping note seeding.",
+      );
       console.log("\n🎉 Seeding complete!");
       console.log("\nTest credentials:");
       console.log("  Admin:    admin@example.com / Test123.");
@@ -128,9 +130,21 @@ async function main() {
       return;
     }
 
-    const adminUser = users.find(u => u.email === 'admin@example.com');
-    const member1User = users.find(u => u.email === 'member1@example.com');
-    const member2User = users.find(u => u.email === 'member2@example.com');
+    const adminUser = users.find((u) => u.email === "admin@example.com");
+    const member1User = users.find((u) => u.email === "member1@example.com");
+    const member2User = users.find((u) => u.email === "member2@example.com");
+
+    if (!adminUser || !member1User || !member2User) {
+      console.error(
+        "⚠️  Warning: Could not find all test users. Skipping note seeding.",
+      );
+      console.log("\n🎉 Seeding complete!");
+      console.log("\nTest credentials:");
+      console.log("  Admin:    admin@example.com / Test123.");
+      console.log("  Member 1: member1@example.com / Test123.");
+      console.log("  Member 2: member2@example.com / Test123.");
+      return;
+    }
 
     // Seed notes for each user
     console.log("\nCreating test notes...");
@@ -140,18 +154,20 @@ async function main() {
       {
         id: crypto.randomUUID(),
         title: "Admin: Project Planning",
-        content: "Planning document for Q1 2025 initiatives. Focus on scalability and performance improvements.",
+        content:
+          "Planning document for Q1 2025 initiatives. Focus on scalability and performance improvements.",
         status: "active",
-        userId: adminUser!.id,
+        userId: adminUser.id,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         id: crypto.randomUUID(),
         title: "Admin: Team Meeting Notes",
-        content: "Weekly sync notes - discussed roadmap priorities and resource allocation.",
+        content:
+          "Weekly sync notes - discussed roadmap priorities and resource allocation.",
         status: "draft",
-        userId: adminUser!.id,
+        userId: adminUser.id,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -159,18 +175,20 @@ async function main() {
       {
         id: crypto.randomUUID(),
         title: "Feature Implementation Ideas",
-        content: "Brainstorming session for new notification system. Consider push notifications and email digests.",
+        content:
+          "Brainstorming session for new notification system. Consider push notifications and email digests.",
         status: "active",
-        userId: member1User!.id,
+        userId: member1User.id,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         id: crypto.randomUUID(),
         title: "Bug Fixes TODO",
-        content: "List of bugs to fix: navbar alignment, form validation, API timeout handling.",
+        content:
+          "List of bugs to fix: navbar alignment, form validation, API timeout handling.",
         status: "active",
-        userId: member1User!.id,
+        userId: member1User.id,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -178,18 +196,20 @@ async function main() {
       {
         id: crypto.randomUUID(),
         title: "Learning Resources",
-        content: "Collection of helpful tutorials and documentation links for TypeScript and React patterns.",
+        content:
+          "Collection of helpful tutorials and documentation links for TypeScript and React patterns.",
         status: "active",
-        userId: member2User!.id,
+        userId: member2User.id,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         id: crypto.randomUUID(),
         title: "Code Review Feedback",
-        content: "Notes from last PR review - focus on error handling and edge cases.",
+        content:
+          "Notes from last PR review - focus on error handling and edge cases.",
         status: "archived",
-        userId: member2User!.id,
+        userId: member2User.id,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -197,10 +217,10 @@ async function main() {
 
     for (const note of testNotes) {
       // Check if note already exists (by title and userId)
-      const existing = await client`
+      const existing = (await client`
         SELECT id FROM "note"
         WHERE title = ${note.title} AND user_id = ${note.userId} AND deleted_at IS NULL
-      `;
+      `) as { id: string }[];
 
       if (existing.length > 0) {
         console.log(`  ⏭️  Note "${note.title}" already exists, skipping`);
@@ -212,7 +232,10 @@ async function main() {
         VALUES (${note.id}, ${note.title}, ${note.content}, ${note.status}, ${note.userId}, ${note.createdAt}, ${note.updatedAt})
       `;
 
-      const userName = users.find(u => u.id === note.userId)?.email.split('@')[0];
+      const user = users.find((u) => u.id === note.userId);
+      const userName = user
+        ? (user.email.split("@")[0] ?? "unknown")
+        : "unknown";
       console.log(`  ✅ Created note: "${note.title}" (${userName})`);
     }
 
