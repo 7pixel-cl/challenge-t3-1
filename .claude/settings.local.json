@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(gh api:*)",
-      "Bash(pnpm migrate:*)"
+      "Bash(pnpm migrate:*)",
+      "Bash(cat:*)",
+      "Bash(pnpm dlx shadcn@latest add:*)",
+      "Read(//c/Users/rrt_6/Desktop/golden-navigator-takehome/challenge-t3-1-MA/apps/nextjs/src/trpc/**)",
+      "Read(//c/Users/rrt_6/Desktop/golden-navigator-takehome/challenge-t3-1-MA/apps/nextjs/src/**)"
     ],
     "deny": [],
     "ask": []
