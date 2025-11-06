@@ -23,7 +23,7 @@ import {
   DialogTitle,
 } from "@acme/ui/dialog";
 
-import { authClient } from "~/auth/client";
+import { useTypedSession } from "~/auth/client";
 import { useTRPC } from "~/trpc/react";
 
 export function NotesList() {
@@ -33,7 +33,7 @@ export function NotesList() {
   const queryClient = useQueryClient();
 
   // Get current user session to check if admin
-  const { data: session } = authClient.useSession();
+  const { data: session } = useTypedSession();
   const isAdmin = session ? session.user.role === "admin" : false;
 
   const {

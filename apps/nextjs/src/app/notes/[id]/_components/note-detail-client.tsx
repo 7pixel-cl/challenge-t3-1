@@ -33,7 +33,7 @@ import {
 } from "@acme/ui/select";
 import { Textarea } from "@acme/ui/textarea";
 
-import { authClient } from "~/auth/client";
+import { useTypedSession } from "~/auth/client";
 import { useTRPC } from "~/trpc/react";
 
 interface NoteDetailClientProps {
@@ -46,7 +46,7 @@ export function NoteDetailClient({ noteId }: NoteDetailClientProps) {
   const queryClient = useQueryClient();
 
   // Get current user session to check if admin
-  const { data: session } = authClient.useSession();
+  const { data: session } = useTypedSession();
   const isAdmin = session ? session.user.role === "admin" : false;
 
   const [isEditing, setIsEditing] = useState(false);

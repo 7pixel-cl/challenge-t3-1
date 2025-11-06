@@ -56,6 +56,7 @@ export function AuthShowcaseClient({
         });
 
         if (result.error) {
+          console.error("Sign up error:", result.error);
           setError(result.error.message ?? "Sign up failed");
           setLoading(false);
         } else {
@@ -69,6 +70,7 @@ export function AuthShowcaseClient({
         });
 
         if (result.error) {
+          console.error("Sign in error:", result.error);
           setError(result.error.message ?? "Sign in failed");
           setLoading(false);
         } else {
@@ -76,6 +78,7 @@ export function AuthShowcaseClient({
         }
       }
     } catch (err) {
+      console.error("Auth error:", err);
       setError(err instanceof Error ? err.message : "Authentication failed");
       setLoading(false);
     }
