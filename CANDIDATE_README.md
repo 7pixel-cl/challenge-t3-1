@@ -148,6 +148,8 @@ Breakdown:
 
 ## 🚀 Run Instructions
 
+### Local Development
+
 ```bash
 # Install dependencies
 pnpm install
@@ -164,6 +166,59 @@ pnpm dev
 ```
 
 Then open http://localhost:3000
+
+### Deploying to Vercel
+
+This project uses a Turborepo monorepo structure, which requires specific Vercel configuration:
+
+**Option 1: Deploy via Vercel CLI (Recommended)**
+
+```bash
+# Install Vercel CLI
+pnpm add -g vercel
+
+# Deploy (from project root)
+vercel
+
+# Follow prompts:
+# - Link to existing project or create new
+# - Set root directory to: . (project root)
+# - Override build command: turbo run build --filter=@acme/nextjs...
+# - Override install command: pnpm install
+```
+
+**Option 2: Deploy via Vercel Dashboard**
+
+1. **Import your repository** to Vercel
+2. **Configure the project settings:**
+   - **Framework Preset:** Other
+   - **Root Directory:** `.` (keep at project root - do NOT select `apps/nextjs`)
+   - **Build Command:** `turbo run build --filter=@acme/nextjs...`
+   - **Output Directory:** `apps/nextjs/.next`
+   - **Install Command:** `pnpm install`
+
+3. **Add Environment Variables** in Project Settings → Environment Variables:
+   ```
+   POSTGRES_URL=your_supabase_pooled_connection_string
+   AUTH_SECRET=your_random_secret (generate with: openssl rand -base64 32)
+   NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+   ```
+
+4. **Deploy** - Vercel will now build all packages correctly
+
+**Important Notes:**
+
+- ⚠️ The `vercel.json` file in the project root configures the build properly
+- ⚠️ Make sure to use the **pooled connection string** from Supabase (port 6543, not 5432)
+- ⚠️ Run `pnpm db:push` locally first to set up the database schema before deploying
+- ⚠️ After deployment, you can run `pnpm db:seed` against production to add test users (optional)
+
+**Verifying the Deployment:**
+
+After deployment, check:
+- ✅ Build logs show all packages building (`@acme/db`, `@acme/api`, `@acme/validators`, etc.)
+- ✅ No import errors in the function logs
+- ✅ App loads and you can sign up/login
 
 ### 🔑 Test User Credentials
 
