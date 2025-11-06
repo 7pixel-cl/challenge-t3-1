@@ -10,7 +10,8 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { z, ZodError } from "zod/v4";
 
-import type { Auth } from "@acme/auth";
+import type { Auth, Session } from "@acme/auth";
+import { UserRole } from "@acme/auth";
 import { db } from "@acme/db/client";
 
 /**
@@ -29,14 +30,18 @@ import { db } from "@acme/db/client";
 export const createTRPCContext = async (opts: {
   headers: Headers;
   auth: Auth;
-}) => {
+}): Promise<{
+  authApi: Auth["api"];
+  session: Session | null;
+  db: typeof db;
+}> => {
   const authApi = opts.auth.api;
   const session = await authApi.getSession({
     headers: opts.headers,
   });
   return {
     authApi,
-    session,
+    session: session as Session | null,
     db,
   };
 };
@@ -126,3 +131,28 @@ export const protectedProcedure = t.procedure
       },
     });
   });
+
+/**
+ * Member procedure
+ *
+ * Alias for protectedProcedure - requires authentication but allows any role.
+ * Use this for endpoints that any authenticated user can access.
+ */
+export const memberProcedure: typeof protectedProcedure = protectedProcedure;
+
+/**
+ * Admin-only procedure
+ *
+ * Ensures the user is authenticated AND has the admin role.
+ * Throws FORBIDDEN if the user is not an admin.
+ */
+export const adminProcedure: typeof protectedProcedure = protectedProcedure.use(({ ctx, next }) => {
+  const userRole = ctx.session.user.role;
+  if (userRole !== UserRole.ADMIN) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Admin access required",
+    });
+  }
+  return next({ ctx });
+});
