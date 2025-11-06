@@ -363,6 +363,9 @@ importers:
 
   packages/validators:
     dependencies:
+      '@acme/db':
+        specifier: workspace:*
+        version: link:../db
       zod:
         specifier: 'catalog:'
         version: 4.1.12
