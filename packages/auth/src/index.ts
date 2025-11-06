@@ -2,9 +2,18 @@ import type { BetterAuthOptions, BetterAuthPlugin } from "better-auth";
 import { expo } from "@better-auth/expo";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { oAuthProxy } from "better-auth/plugins";
 
 import { db } from "@acme/db/client";
+
+/**
+ * User roles for RBAC
+ */
+export const UserRole = {
+  MEMBER: "member",
+  ADMIN: "admin",
+} as const;
+
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
 export function initAuth<
   TExtraPlugins extends BetterAuthPlugin[] = [],
@@ -12,9 +21,6 @@ export function initAuth<
   baseUrl: string;
   productionUrl: string;
   secret: string | undefined;
-
-  discordClientId: string;
-  discordClientSecret: string;
   extraPlugins?: TExtraPlugins;
 }) {
   const config = {
@@ -23,20 +29,27 @@ export function initAuth<
     }),
     baseURL: options.baseUrl,
     secret: options.secret,
+    emailAndPassword: {
+      enabled: true,
+      requireEmailVerification: false, // Disabled for easier testing/seeding
+      autoSignIn: true,
+      minPasswordLength: 8,
+      maxPasswordLength: 128,
+    },
+    user: {
+      additionalFields: {
+        role: {
+          type: "string",
+          defaultValue: UserRole.MEMBER,
+          required: true,
+          input: false, // Security: prevent users from setting their own role
+        },
+      },
+    },
     plugins: [
-      oAuthProxy({
-        productionURL: options.productionUrl,
-      }),
       expo(),
       ...(options.extraPlugins ?? []),
     ],
-    socialProviders: {
-      discord: {
-        clientId: options.discordClientId,
-        clientSecret: options.discordClientSecret,
-        redirectURI: `${options.productionUrl}/api/auth/callback/discord`,
-      },
-    },
     trustedOrigins: ["expo://"],
     onAPIError: {
       onError(error, ctx) {
@@ -50,3 +63,4 @@ export function initAuth<
 
 export type Auth = ReturnType<typeof initAuth>;
 export type Session = Auth["$Infer"]["Session"];
+export type User = Auth["$Infer"]["Session"]["user"] & { role: UserRole };
